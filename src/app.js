@@ -1,8 +1,8 @@
-import express from "express";
-import cors from "cors";
+import express from 'express';
+import cors from 'cors';
 import 'express-async-errors';
 
-import mainRouter from "./routes/index.js";
+import mainRouter from './routes/index.js';
 
 const app = express();
 app.use(cors());

@@ -1,44 +1,34 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { getUsersByEmail } from '../repositories/index.js';
+import { getUserByEmail, createUser } from '../repositories/index.js';
 import connection from '../database.js';
 
 export async function registerUser(req, res) {
   try {
     const { name, email, password } = res.locals.newUserData;
 
-    const existingUsers = await getUsersByEmail(email);
-        
+    const existingUsers = await getUserByEmail(email);
+
     if (existingUsers.rowCount > 0) {
       return res.sendStatus(409);
     }
 
     const hashedPassword = bcrypt.hashSync(password, 12);
 
-    await connection.query(
-      `INSERT INTO "users" ("name", "email", "password") VALUES ($1, $2, $3)`,
-      [name, email, hashedPassword]
-    );
+    await createUser(name, email, hashedPassword);
 
-    res.sendStatus(201);
+    return res.sendStatus(201);
   } catch (err) {
     console.error(err);
-    res.sendStatus(500);
+    return res.sendStatus(500);
   }
 }
 
 export async function userLogin(req, res) {
   try {
-    const { email, password } = req.body;
+    const { email, password } = res.locals.userData;
 
-    if (!email || !password) {
-      return res.sendStatus(422);
-    }
-
-    const { rows } = await connection.query(
-      `SELECT * FROM "users" WHERE "email"=$1`,
-      [email]
-    );
+    const { rows } = await getUserByEmail(email);
     const [user] = rows;
 
     if (!user || !bcrypt.compareSync(password, user.password)) {
@@ -49,14 +39,14 @@ export async function userLogin(req, res) {
       {
         id: user.id,
       },
-      process.env.JWT_SECRET
+      process.env.JWT_SECRET,
     );
 
-    res.send({
+    return res.send({
       token,
     });
   } catch (err) {
     console.error(err);
-    res.sendStatus(500);
+    return res.sendStatus(500);
   }
 }

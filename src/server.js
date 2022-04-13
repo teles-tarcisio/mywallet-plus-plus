@@ -1,5 +1,6 @@
-import app from "./app.js";
-import "./setup.js";
+/* eslint-disable no-console */
+import app from './app.js';
+import './setup.js';
 
 const port = +process.env.PORT || 4000;
 app.listen(port, () => {

@@ -1,5 +1,8 @@
-import { getUsersByEmail } from './userRepository.js';
+/* eslint-disable import/prefer-default-export */
+
+import { getUserByEmail, createUser } from './userRepository.js';
 
 export {
-  getUsersByEmail,
-}
+  getUserByEmail,
+  createUser,
+};

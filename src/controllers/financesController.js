@@ -3,9 +3,9 @@ import connection from '../database.js';
 
 export async function newTransaction(req, res) {
   try {
-    const authorization = req.headers.authorization || "";
-    const token = authorization.replace("Bearer ", "");
-    
+    const authorization = req.headers.authorization || '';
+    const token = authorization.replace('Bearer ', '');
+
     if (!token) {
       return res.sendStatus(401);
     }
@@ -24,7 +24,7 @@ export async function newTransaction(req, res) {
       return res.sendStatus(422);
     }
 
-    const financialTypes = ["INCOME", "OUTCOME"];
+    const financialTypes = ['INCOME', 'OUTCOME'];
     if (!financialTypes.includes(type)) {
       return res.sendStatus(422);
     }
@@ -35,20 +35,20 @@ export async function newTransaction(req, res) {
 
     await connection.query(
       `INSERT INTO "financialEvents" ("userId", "value", "type") VALUES ($1, $2, $3)`,
-      [user.id, value, type]
+      [user.id, value, type],
     );
 
-    res.sendStatus(201);
+    return res.sendStatus(201);
   } catch (err) {
     console.error(err);
-    res.sendStatus(500);
+    return res.sendStatus(500);
   }
 }
 
 export async function getTransactions(req, res) {
   try {
-    const authorization = req.headers.authorization || "";
-    const token = authorization.replace("Bearer ", "");
+    const authorization = req.headers.authorization || '';
+    const token = authorization.replace('Bearer ', '');
 
     if (!token) {
       return res.sendStatus(401);
@@ -64,20 +64,20 @@ export async function getTransactions(req, res) {
 
     const events = await connection.query(
       `SELECT * FROM "financialEvents" WHERE "userId"=$1 ORDER BY "id" DESC`,
-      [user.id]
+      [user.id],
     );
 
-    res.send(events.rows);
+    return res.send(events.rows);
   } catch (err) {
     console.error(err);
-    res.sendStatus(500);
+    return res.sendStatus(500);
   }
 }
 
 export async function sumTransactions(req, res) {
   try {
-    const authorization = req.headers.authorization || "";
-    const token = authorization.replace("Bearer ", "");
+    const authorization = req.headers.authorization || '';
+    const token = authorization.replace('Bearer ', '');
 
     if (!token) {
       return res.sendStatus(401);
@@ -93,18 +93,18 @@ export async function sumTransactions(req, res) {
 
     const events = await connection.query(
       `SELECT * FROM "financialEvents" WHERE "userId"=$1 ORDER BY "id" DESC`,
-      [user.id]
+      [user.id],
     );
 
     const sum = events.rows.reduce(
-      (total, event) =>
-        event.type === "INCOME" ? total + event.value : total - event.value,
-      0
+      (total, event) => (
+        event.type === 'INCOME' ? total + event.value : total - event.value,
+        0),
     );
 
-    res.send({ sum });
+    return res.send({ sum });
   } catch (err) {
     console.error(err);
-    res.sendStatus(500);
+    return res.sendStatus(500);
   }
 }
