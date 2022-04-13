@@ -1,20 +1,14 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { getUsersByEmail } from '../repositories/index.js';
 import connection from '../database.js';
 
 export async function registerUser(req, res) {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password } = res.locals.newUserData;
 
-    if (!name || !email || !password) {
-      return res.sendStatus(422);
-    }
-
-    const existingUsers = await connection.query(
-      `SELECT * FROM "users" WHERE "email"=$1`,
-      [email]
-    );
-
+    const existingUsers = await getUsersByEmail(email);
+        
     if (existingUsers.rowCount > 0) {
       return res.sendStatus(409);
     }
